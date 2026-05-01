@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, Query
 from pydantic import BaseModel, constr
 from typing import List, Optional
 from app.api.v1.dependencies import get_current_user
@@ -33,8 +33,12 @@ async def create_stokvel(data: StokvelCreateRequest, user=Depends(get_current_us
     return stokvel
 
 @router.get("")
-async def list_stokvels(user=Depends(get_current_user)):
-    stokvels = await stokvel_service.list_stokvels(user)
+async def list_stokvels(
+    user=Depends(get_current_user),
+    page: int = Query(1, ge=1),
+    per_page: int = Query(50, ge=1, le=100),
+):
+    stokvels = await stokvel_service.list_stokvels(user, page=page, per_page=per_page)
     return stokvels
 
 @router.get("/{stokvel_id}")

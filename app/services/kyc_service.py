@@ -1,8 +1,8 @@
-
 from datetime import date, datetime, timedelta
 from typing import Optional, List, Dict, Any
-from app.models import User, KYCDocument, KYCStatus, DocumentType
-from app.core.validation import validate_sa_id_number, SAIDValidationError
+from app.models.user import User, KYCDocument, KYCStatus, DocumentType
+from app.core.validation import validate_sa_id
+from app.core.exceptions import ValidationError
 
 PROOF_OF_ADDRESS_MAX_AGE_DAYS = 90
 
@@ -19,9 +19,9 @@ class KYCService:
         if document_type in [DocumentType.SA_ID_DOCUMENT, DocumentType.SA_ID_CARD]:
             if document_number:
                 try:
-                    validate_sa_id_number(document_number)
+                    validate_sa_id(document_number)
                     user.sa_id_number = document_number
-                except SAIDValidationError as e:
+                except ValidationError as e:
                     errors.append(str(e))
         if document_type == DocumentType.PROOF_OF_ADDRESS:
             if document_date:

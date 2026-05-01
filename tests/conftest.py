@@ -3,8 +3,8 @@ import fakeredis
 from fastapi.testclient import TestClient
 from httpx import AsyncClient
 from fastapi import FastAPI, Depends
-from app.main import app  # Adjust import as needed
-from app.dependencies import get_redis  # Adjust import as needed
+from app.main import app
+from app.core.redis import get_redis
 
 class MockSES:
     def __init__(self):
@@ -30,10 +30,7 @@ def mock_ses():
 
 @pytest.fixture()
 async def async_client(mock_redis, mock_ses):
-    # Override dependencies
     app.dependency_overrides[get_redis] = lambda: mock_redis
-    # If you have a get_ses dependency, override here as well
-    # app.dependency_overrides[get_ses] = lambda: mock_ses
     async with AsyncClient(app=app, base_url="http://test") as ac:
         yield ac
     app.dependency_overrides = {}

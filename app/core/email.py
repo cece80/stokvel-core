@@ -3,9 +3,9 @@ from botocore.exceptions import ClientError
 from typing import Optional
 from app.config import get_settings
 import asyncio
+import logging
 
 __all__ = ["send_otp_email"]
-
 
 async def send_otp_email(to_email: str, otp_code: str, purpose: str) -> None:
     """
@@ -18,10 +18,18 @@ async def send_otp_email(to_email: str, otp_code: str, purpose: str) -> None:
         Exception if sending fails
     """
     settings = get_settings()
-    aws_access_key = settings.AWS_ACCESS_KEY_ID
-    aws_secret_key = settings.AWS_SECRET_ACCESS_KEY
-    aws_region = settings.AWS_REGION
-    sender = settings.EMAIL_FROM
+    aws_access_key = settings.aws_access_key_id
+    aws_secret_key = settings.aws_secret_access_key
+    aws_region = settings.aws_region
+    sender = settings.ses_sender_email
+    environment = settings.environment
+
+    if not aws_access_key or not aws_secret_key or not sender:
+        if environment == "development":
+            # Fallback: log to console
+            logging.warning(f"[DEV] Would send OTP email to {to_email}: {otp_code} for {purpose}")
+            return
+        raise Exception("Missing AWS SES configuration (access key, secret, or sender email)")
 
     subject_map = {
         "register": "Your Registration OTP",
@@ -52,7 +60,6 @@ async def send_otp_email(to_email: str, otp_code: str, purpose: str) -> None:
         text_body,
     )
 
-
 def _send_email_sync(
     ses_client,
     sender: str,
@@ -78,7 +85,6 @@ def _send_email_sync(
         )
     except ClientError as e:
         raise Exception(f"Failed to send OTP email: {e.response['Error']['Message']}")
-
 
 def _otp_email_html_template(otp_code: str, purpose: str) -> str:
     """

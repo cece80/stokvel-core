@@ -87,3 +87,43 @@ class AuditLogEntry:
     description: str = ""
     metadata: dict = field(default_factory=dict)
     timestamp: datetime = field(default_factory=datetime.utcnow)
+
+@dataclass
+class Contribution:
+    id: str = field(default_factory=lambda: str(uuid.uuid4()))
+    stokvel_id: str = ""
+    user_id: str = ""
+    amount: Decimal = Decimal("0.00")
+    contributed_at: datetime = field(default_factory=datetime.utcnow)
+
+@dataclass
+class Vote:
+    id: str = field(default_factory=lambda: str(uuid.uuid4()))
+    stokvel_id: str = ""
+    title: str = ""
+    description: str = ""
+    proposal_type: str = "general"
+    created_by: str = ""
+    total_eligible_voters: int = 0
+    quorum_percentage: float = 50.0
+    approval_percentage: float = 50.0
+    votes_for: int = 0
+    votes_against: int = 0
+    votes_abstain: int = 0
+    is_open: bool = True
+    closed_at: Optional[datetime] = None
+    result: Optional[str] = None
+
+    def can_create_vote(self) -> bool:
+        return True  # TODO: implement permission logic
+
+@dataclass
+class VoteCast:
+    id: str = field(default_factory=lambda: str(uuid.uuid4()))
+    vote_id: str = ""
+    user_id: str = ""
+    choice: str = ""
+    cast_at: datetime = field(default_factory=datetime.utcnow)
+
+    def can_cast_vote(self) -> bool:
+        return True  # TODO: implement permission logic

@@ -137,3 +137,10 @@ class StokvelMembership:
             StokvelRole.SECRETARY,
             StokvelRole.TREASURER,
         ]
+
+@dataclass
+class UserContext:
+    user_id: str
+    org_id: Optional[str] = None
+    role: Optional[str] = None
+    email: Optional[str] = None

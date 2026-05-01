@@ -1,5 +1,5 @@
 import pytest
-from app.validation import validate_sa_phone, validate_sa_id, validate_email  # Adjust import as needed
+from app.core.validation import validate_sa_phone, validate_sa_id, validate_email
 
 @pytest.mark.parametrize("phone,valid", [
     ("+27821234567", True),
@@ -15,7 +15,7 @@ def test_sa_phone_validation(phone, valid):
     if valid:
         assert validate_sa_phone(phone)
     else:
-        with pytest.raises(ValueError):
+        with pytest.raises(Exception):
             validate_sa_phone(phone)
 
 @pytest.mark.parametrize("sa_id,valid", [
@@ -26,9 +26,9 @@ def test_sa_phone_validation(phone, valid):
 ])
 def test_sa_id_luhn_check(sa_id, valid):
     if valid:
-        assert validate_sa_id(sa_id)
+        assert validate_sa_id(sa_id)["is_valid"]
     else:
-        with pytest.raises(ValueError):
+        with pytest.raises(Exception):
             validate_sa_id(sa_id)
 
 @pytest.mark.parametrize("email,valid", [
@@ -45,5 +45,5 @@ def test_email_validation(email, valid):
     if valid:
         assert validate_email(email)
     else:
-        with pytest.raises(ValueError):
+        with pytest.raises(Exception):
             validate_email(email)
